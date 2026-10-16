@@ -1,0 +1,69 @@
+//create healthfit database
+
+use healthfit
+
+// create medical_records collection
+
+db.createCollection("medical_records")
+
+// create fitness_trackers collection
+db.createCollection("fitness_trackers")
+
+//leave db 
+exit
+
+// check mongoimport 
+mongoimport --version
+
+//import data
+mongoimport --db healthfit --collection medical_records --file "C:\data\medical_records.json" --jsonArray
+
+mongoimport --db healthfit --collection fitness_trackers --file "C:\data\fitness_trackers.json" --jsonArray
+
+
+//check import
+use healthfit
+db.fitness_trackers.countDocuments()
+db.fitness_trackers.findOne()
+
+db.medical_records.countDocuments()
+db.medical_records.findOne()
+
+
+//Queries on DB
+
+// patient IDs for medical condition = 'watch'
+
+db.medical_records.find({medical_conditions: 'Watch' }, {patient_id: 1, _id:0})
+
+//patients using band 2 or band 3
+
+db.medical_records.find({ Tracker: {$in: ['Band 2', 'Band 3'] } }, {patient_id: 1, _id: 0 } )
+
+// fitness trackers with rating > 4
+
+db.fitness_trackers.find({ 'Rating (Out of 5)': {$gt: 4} }, {'Brand Name': 1, 'Model Name': 1, _id: 0})
+
+
+
+//Optimizing queries on DB with indexes
+
+// patient IDs for medical condition = 'watch'
+//optimized with medical condition index
+
+db.medical_records.createIndex({medical_conditions: 1})
+db.medical_records.find({medical_conditions: 'Watch' }, {patient_id: 1, _id:0})
+
+//patients using band 2 or band 3
+//optimized with index
+
+db.medical_records.createIndex({Tracker: 1})
+
+db.medical_records.find({ Tracker: {$in: ['Band 2', 'Band 3'] } }, {patient_id: 1, _id: 0 } )
+
+// fitness trackers with rating > 4
+//optimized with index
+
+db.fitness_trackers.createIndex({'Rating (Out of 5)':1})
+
+db.fitness_trackers.find({ 'Rating (Out of 5)': {$gt: 4} }, {'Brand Name': 1, 'Model Name': 1, _id: 0})
